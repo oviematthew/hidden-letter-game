@@ -2,8 +2,12 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   text-align: center;
+  min-height: 100vh;
   color: #fff;
+  font-weight: bold;
+
 }
 
 .row{
@@ -13,4 +17,18 @@
 .cell{
   width: 20px;
   height: 20px;
+}
+
+.incorrect{
+  color: red;
+}
+
+.correct{
+  color: green;
+  font-weight: bolder;
+  font-size: 20;
+}
+
+.cell:hover{
+  cursor: pointer;
 }
