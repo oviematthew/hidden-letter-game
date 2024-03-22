@@ -1,17 +1,20 @@
 import * as React from "react";
-import {createBoard} from "./utils/createBoard"
-import './App.css';
+import { createBoard } from "./utils/createBoard";
+import Cell from "./components/Cell";
+import "./App.css";
 
 function App() {
- const [board, setBoard] = React.useState(() => createBoard())
+  const [board, setBoard] = React.useState(() => createBoard());
 
   return (
-    <div>
-     {board.map((row, rowIdx) => (
-      <div key={rowIdx}>{row.map((letter, letterIdx) => {
-        <div key={letterIdx}>Cell</div>
-      })}</div>
-     ))}
+    <div className="App">
+      {board.map((row, rowIdx) => (
+        <div key={rowIdx} className="row">
+          {row.map((letter, letterIdx) => (
+            <Cell key={letterIdx} {...letter} />
+          ))}
+        </div>
+      ))}
     </div>
   );
 }

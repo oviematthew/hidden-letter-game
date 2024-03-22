@@ -22,18 +22,20 @@ const couples = [
 export function createBoard(){
     const board = []
     const randomIdx = Math.floor(Math.random() * (couples.length - 1));
-    const randomCouple = couples[randomIdx]
+    const randomCouple = couples[randomIdx];
     const randomLetter = Math.random() > .5 ? 1 : 0;
-    const randomRowSize = Math.floor(Math.random() * 25) + 1;
-    const randomColSize = Math.floor(Math.random() * 20) + 1;
     const hiddenLetter = randomLetter === 1 ? 0 : 1;
-    for(let row = 0; row < randomRowSize; row++ ) {
+    const randomRowSize = Math.floor(Math.random() * 25);
+    const randomColSize = Math.floor(Math.random() * 20);
+    
+
+    for(let row = 0; row < randomRowSize + 1; row++ ) {
         const newRow = []
 
-        for(let col = 0; col < randomColSize; col++ ) {
-            newRow.push(createCell(row, col, randomCouple))
+        for(let col = 0; col < randomColSize + 1; col++ ) {
+            newRow.push(createCell(row, col, randomCouple[randomLetter]))
         }
-        board.push(newRow)
+        board.push(newRow);
     }
     // insert random hidden letter
     return board;
