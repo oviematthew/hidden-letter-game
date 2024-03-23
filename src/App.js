@@ -2,21 +2,28 @@ import * as React from "react";
 import { createBoard } from "./utils/createBoard";
 import Cell from "./components/Cell";
 import "./App.css";
+import ConfettiExplosion from "react-confetti-explosion";
 
 function App() {
   const [board, setBoard] = React.useState(() => createBoard());
   const [gamesToWin, setGamesToWin] = React.useState(5);
   const [timer, setTimer] = React.useState(0);
-  const miliseconds = (timer / 10).toFixed(2);
+  const [gameStarted, setGameStarted] = React.useState(false);
+  const [isExploding, setIsExploding] = React.useState(false);
+  const [gamesWon, setGamesWon] = React.useState(0);
+  const milliseconds = (timer / 10).toFixed(2);
 
   React.useEffect(() => {
-    if (gamesToWin > 0) {
+    if (gameStarted && gamesToWin > 0) {
       const interval = setInterval(() => {
         setTimer(timer + 1);
       }, 100);
       return () => clearInterval(interval);
+    } else if (gamesToWin === 0) {
+      setIsExploding(true);
+      setGamesWon(gamesWon + 1);
     }
-  }, [gamesToWin, timer]);
+  }, [gameStarted, gamesToWin, timer]);
 
   function handleClick(row, col) {
     if (board[row][col].isHidden) {
@@ -28,34 +35,68 @@ function App() {
     }
   }
 
+  function playAgain() {
+    setGamesToWin(5);
+    setGameStarted(false);
+    setTimer(0);
+  }
+
+  function startGame() {
+    setGameStarted(true);
+  }
+
   return (
     <div className="App">
       <h1>Hidden Letter Game</h1>
-      {gamesToWin > 0 && <p>Time Taken: {miliseconds} </p>}
+      <div className="flex">
+        <p className="parag">Find the hidden letter on the board</p>
+        <p>|</p>
+        <p>Won: {gamesWon}</p>
+      </div>
 
-      {gamesToWin === 0 ? (
-        <p> Congratulations 🥳, your time was: {miliseconds} </p>
-      ) : (
-        <p>Games needed to win: {gamesToWin} </p>
+      {!gameStarted && (
+        <button className="btn" onClick={startGame}>
+          Start Game
+        </button>
       )}
 
-      <div>
-        {gamesToWin > 0 && (
+      {gameStarted && (
+        <div>
+          {gamesToWin > 0 && <p>Time: {milliseconds} seconds </p>}
+
+          {gamesToWin === 0 ? (
+            <p> Congratulations 🥳, your time was: {milliseconds} seconds </p>
+          ) : (
+            <p>Games needed to win: {gamesToWin} </p>
+          )}
+
           <div>
-            {board.map((row, rowIdx) => (
-              <div key={rowIdx} className="row">
-                {row.map((letter, letterIdx) => (
-                  <Cell key={letterIdx} handleClick={handleClick} {...letter} />
+            {gamesToWin > 0 && (
+              <div className="gameboard">
+                {board.map((row, rowIdx) => (
+                  <div key={rowIdx} className="row">
+                    {row.map((letter, letterIdx) => (
+                      <Cell
+                        key={letterIdx}
+                        handleClick={handleClick}
+                        {...letter}
+                      />
+                    ))}
+                  </div>
                 ))}
               </div>
-            ))}
-          </div>
-        )}
+            )}
 
-        {gamesToWin === 0 && (
-          <button onClick={() => window.location.reload()}>Restart Game</button>
-        )}
-      </div>
+            {gamesToWin === 0 && isExploding && <ConfettiExplosion />}
+
+            {gamesToWin === 0 && (
+              <button className="btn" onClick={playAgain}>
+                Play Again
+              </button>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -23,13 +23,15 @@ export function createBoard() {
   const randomCouple = couples[randomIdx];
   const randomLetter = Math.random() > 0.5 ? 1 : 0;
   const hiddenLetter = randomLetter === 1 ? 0 : 1;
-  const randomRowSize = Math.floor(Math.random() * 25);
-  const randomColSize = Math.floor(Math.random() * 20);
+  const randomRowSize = 20;
+  const randomColSize = 15;
+  //  const randomRowSize = Math.floor(Math.random() * 25);
+  //  const randomColSize = Math.floor(Math.random() * 20);
 
-  for (let row = 0; row < randomRowSize + 1; row++) {
+  for (let row = 0; row < randomRowSize; row++) {
     const newRow = [];
 
-    for (let col = 0; col < randomColSize + 1; col++) {
+    for (let col = 0; col < randomColSize; col++) {
       newRow.push(createCell(row, col, randomCouple[randomLetter]));
     }
     board.push(newRow);
