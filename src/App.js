@@ -1,8 +1,12 @@
 import * as React from "react";
+import useSound from "use-sound";
 import { createBoard } from "./utils/createBoard";
 import Cell from "./components/Cell";
 import "./App.css";
 import ConfettiExplosion from "react-confetti-explosion";
+import correctAnswerSound from "./media/sounds/correct.mp3";
+import wrongAnswerSound from "./media/sounds/buzzer.mp3";
+import finishedGameSound from "./media/sounds/victory.mp3";
 
 function App() {
   const [board, setBoard] = React.useState(() => createBoard());
@@ -11,7 +15,12 @@ function App() {
   const [gameStarted, setGameStarted] = React.useState(false);
   const [isExploding, setIsExploding] = React.useState(false);
   const [gamesWon, setGamesWon] = React.useState(0);
+
   const milliseconds = (timer / 10).toFixed(2);
+
+  const [playDoneSound] = useSound(finishedGameSound);
+  const [playCorrectSound] = useSound(correctAnswerSound);
+  const [playWrongSound] = useSound(wrongAnswerSound);
 
   React.useEffect(() => {
     if (gameStarted && gamesToWin > 0) {
@@ -22,16 +31,23 @@ function App() {
     } else if (gamesToWin === 0) {
       setIsExploding(true);
       setGamesWon(gamesWon + 1);
+
+      setTimeout(() => {
+        playDoneSound();
+      }, 600);
     }
   }, [gameStarted, gamesToWin, timer]);
 
   function handleClick(row, col) {
     if (board[row][col].isHidden) {
       setGamesToWin(gamesToWin - 1);
+      playCorrectSound();
 
       setTimeout(() => {
         setBoard(createBoard());
       }, 500);
+    } else {
+      playWrongSound();
     }
   }
 
@@ -51,7 +67,7 @@ function App() {
       <div className="flex">
         <p className="parag">Find the hidden letter on the board</p>
         <p>|</p>
-        <p>Won: {gamesWon}</p>
+        <p>Games Won: {gamesWon}</p>
       </div>
 
       {!gameStarted && (

@@ -25,8 +25,6 @@ export function createBoard() {
   const hiddenLetter = randomLetter === 1 ? 0 : 1;
   const randomRowSize = 20;
   const randomColSize = 15;
-  //  const randomRowSize = Math.floor(Math.random() * 25);
-  //  const randomColSize = Math.floor(Math.random() * 20);
 
   for (let row = 0; row < randomRowSize; row++) {
     const newRow = [];
