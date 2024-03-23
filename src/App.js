@@ -65,8 +65,6 @@ function App() {
     <div className="App">
       <h1>Hidden Letter Game</h1>
       <div className="flex">
-        <p className="parag">Find the hidden letter on the board</p>
-        <p>|</p>
         <p>Games Won: {gamesWon}</p>
       </div>
 
