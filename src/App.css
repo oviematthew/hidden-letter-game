@@ -84,6 +84,11 @@ body {
   scale: 1.04;
 }
 
+.btn-secondary:hover {
+  cursor: pointer;
+  scale: 1.04;
+}
+
 .username-input{
   margin-bottom: 20px;
   padding: 10px;
