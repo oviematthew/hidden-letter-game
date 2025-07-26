@@ -44,9 +44,9 @@ function App() {
       };
 
       // Sort leaderboard and add new entry
-      const updatedLeaderboard = [...leaderboard, entry].sort(
-        (a, b) => a.time - b.time
-      );
+      const updatedLeaderboard = [...leaderboard, entry]
+        .sort((a, b) => a.time - b.time)
+        .slice(0, 10); // Limit to top 10 entries
 
       setLeaderboard(updatedLeaderboard);
       localStorage.setItem("leaderboard", JSON.stringify(updatedLeaderboard));
@@ -67,16 +67,30 @@ function App() {
 
   // Function to handle cell click
   function handleClick(row, col) {
-    if (board[row][col].isHidden) {
-      setGamesToWin((prev) => prev - 1);
-      playCorrectSound();
-      setTimeout(() => {
-        setBoard(createBoard());
-      }, 500);
-    } else {
-      playWrongSound();
+    const cell = board[row][col];
+    if (!cell.clicked) {
+      const newBoard = board.map((r, rowIdx) =>
+        r.map((c, colIdx) => {
+          if (rowIdx === row && colIdx === col) {
+            return { ...c, clicked: true }; // mark clicked
+          }
+          return c;
+        })
+      );
+      setBoard(newBoard);
+
+      if (cell.isHidden) {
+        setGamesToWin((prev) => prev - 1);
+        playCorrectSound();
+        setTimeout(() => {
+          setBoard(createBoard());
+        }, 500);
+      } else {
+        playWrongSound();
+      }
     }
   }
+
   // Function to play again
   function playAgain() {
     setGamesToWin(5);
@@ -165,7 +179,7 @@ function App() {
               </div>
 
               <div className="leaderboard">
-                <h3>🏆 All Time Leaderboard</h3>
+                <h3>🏆 Top 10 Leaderboard (Time)</h3>
                 <table className="leaderboard-table">
                   <thead>
                     <tr>
