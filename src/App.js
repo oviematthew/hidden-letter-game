@@ -11,6 +11,8 @@ import finishedGameSound from "./media/sounds/victory.mp3";
 function App() {
   const [board, setBoard] = React.useState(() => createBoard());
   const [gamesToWin, setGamesToWin] = React.useState(5);
+  const [countdown, setCountdown] = React.useState(null);
+  const [showCountdownText, setShowCountdownText] = React.useState(false);
   const [timer, setTimer] = React.useState(0);
   const [gameStarted, setGameStarted] = React.useState(false);
   const [isExploding, setIsExploding] = React.useState(false);
@@ -110,10 +112,26 @@ function App() {
   function startGame() {
     if (userName.trim()) {
       setUserName(capitalizeFirstLetter(userName));
-      setGameStarted(true);
-      setTimer(0);
-      setGamesToWin(5);
-      setBoard(createBoard());
+      setShowCountdownText(true);
+
+      // Countdown from 3 to 0
+      let count = 3;
+      setCountdown(count);
+
+      const countdownInterval = setInterval(() => {
+        count -= 1;
+        if (count >= 0) {
+          setCountdown(count);
+        }
+        if (count < 0) {
+          clearInterval(countdownInterval);
+          setShowCountdownText(false);
+          setGameStarted(true);
+          setTimer(0);
+          setGamesToWin(5);
+          setBoard(createBoard());
+        }
+      }, 1000);
     }
   }
 
@@ -136,7 +154,7 @@ function App() {
     <div className="App">
       <h1>Hidden Letter Game</h1>
 
-      {!gameStarted && (
+      {!gameStarted && !showCountdownText && (
         <div>
           <input
             type="text"
@@ -153,6 +171,18 @@ function App() {
           >
             Start Game
           </button>
+        </div>
+      )}
+
+      {showCountdownText && (
+        <div className="countdown">
+          <p className="countdown-text">
+            {countdown > 0
+              ? `🌀 ${countdown}...`
+              : countdown === 0
+              ? "🎯 GO!"
+              : ""}
+          </p>
         </div>
       )}
 
