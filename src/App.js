@@ -6,7 +6,9 @@ import "./App.css";
 import ConfettiExplosion from "react-confetti-explosion";
 import correctAnswerSound from "./media/sounds/correct.mp3";
 import wrongAnswerSound from "./media/sounds/buzzer.mp3";
+import countdownSound from "./media/sounds/3-2-1-countdown.mp3";
 import finishedGameSound from "./media/sounds/victory.mp3";
+import Leaderboard from "./components/Leaderboard";
 
 function App() {
   const [board, setBoard] = React.useState(() => createBoard());
@@ -17,7 +19,9 @@ function App() {
   const [gameStarted, setGameStarted] = React.useState(false);
   const [isExploding, setIsExploding] = React.useState(false);
   const [gamesWon, setGamesWon] = React.useState(0);
+  const [showLeaderboard, setShowLeaderboard] = React.useState(false);
   const [userName, setUserName] = React.useState("");
+  const [latestEntry, setLatestEntry] = React.useState(null);
   const [gameJustFinished, setGameJustFinished] = React.useState(false);
   const [leaderboard, setLeaderboard] = React.useState(() => {
     return JSON.parse(localStorage.getItem("leaderboard")) || [];
@@ -28,6 +32,7 @@ function App() {
   const [playDoneSound] = useSound(finishedGameSound);
   const [playCorrectSound] = useSound(correctAnswerSound);
   const [playWrongSound] = useSound(wrongAnswerSound);
+  const [playCountdownSound] = useSound(countdownSound);
 
   React.useEffect(() => {
     if (gameStarted && gamesToWin > 0) {
@@ -51,6 +56,8 @@ function App() {
         .slice(0, 10); // Limit to top 10 entries
 
       setLeaderboard(updatedLeaderboard);
+      setLatestEntry(entry); // Set latest entry for highlighting
+
       localStorage.setItem("leaderboard", JSON.stringify(updatedLeaderboard));
 
       setTimeout(() => {
@@ -113,6 +120,7 @@ function App() {
     if (userName.trim()) {
       setUserName(capitalizeFirstLetter(userName));
       setShowCountdownText(true);
+      playCountdownSound();
 
       // Countdown from 3 to 0
       let count = 3;
@@ -124,6 +132,7 @@ function App() {
           setCountdown(count);
         }
         if (count < 0) {
+          setShowLeaderboard(false);
           clearInterval(countdownInterval);
           setShowCountdownText(false);
           setGameStarted(true);
@@ -156,21 +165,44 @@ function App() {
 
       {!gameStarted && !showCountdownText && (
         <div>
-          <input
-            type="text"
-            placeholder="Enter your username"
-            className="username-input"
-            value={userName}
-            onChange={handleUsernameChange}
-          />
-          <br />
-          <button
-            className="btn"
-            onClick={startGame}
-            disabled={!userName.trim()}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              startGame();
+            }}
           >
-            Start Game
-          </button>
+            <input
+              type="text"
+              placeholder="Enter your username"
+              className="username-input"
+              value={userName}
+              onChange={handleUsernameChange}
+            />
+            <br />
+            <button className="btn" type="submit" disabled={!userName.trim()}>
+              Start Game
+            </button>
+          </form>
+
+          {showLeaderboard && (
+            <div className="leaderboard">
+              {leaderboard.length > 0 ? (
+                <Leaderboard leaderboard={leaderboard} />
+              ) : (
+                <p className="empty-leaderboard">
+                  No games played yet. Be the first!
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* 👇 Text-style leaderboard toggle */}
+          <p
+            className="toggle"
+            onClick={() => setShowLeaderboard((prev) => !prev)}
+          >
+            {showLeaderboard ? "Hide Leaderboard" : "Show Leaderboard"}
+          </p>
         </div>
       )}
 
@@ -196,39 +228,24 @@ function App() {
           )}
 
           {gamesToWin > 0 ? (
-            <p>Games left: {gamesToWin}</p>
+            <p>Boards left: {gamesToWin}</p>
           ) : (
             <>
               <div className="flex">
                 <p>
                   🎉 Congrats <span className="orange">{userName}</span>, your
-                  time was: {milliseconds} seconds!
+                  time was:{" "}
+                  <span className="orange">{milliseconds} seconds!</span>
                 </p>
 
-                <p>Games Won: {gamesWon}</p>
+                {/* Removing gameswon till i add individual user games won */}
+                {/* <p>Games Won: {gamesWon}</p> */}
               </div>
-
-              <div className="leaderboard">
-                <h3>🏆 Top 10 Leaderboard (Time)</h3>
-                <table className="leaderboard-table">
-                  <thead>
-                    <tr>
-                      <th>#</th>
-                      <th>Username</th>
-                      <th>Time (s)</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {leaderboard.map((entry, idx) => (
-                      <tr key={idx}>
-                        <td>{idx + 1}</td>
-                        <td>{entry.name}</td>
-                        <td>{entry.time}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <hr />
+              <Leaderboard
+                leaderboard={leaderboard}
+                latestEntry={latestEntry}
+              />
             </>
           )}
 
@@ -251,14 +268,19 @@ function App() {
           {gamesToWin === 0 && isExploding && <ConfettiExplosion />}
 
           {gamesToWin === 0 && (
-            <div className="buttons">
-              <button className="btn" onClick={playAgain}>
-                Play Again
-              </button>
-              <button className="btn-secondary" onClick={changeUser}>
-                Change User
-              </button>
-            </div>
+            <>
+              <div className="buttons">
+                <button className="btn" onClick={playAgain}>
+                  Play Again
+                </button>
+                <button className="btn-secondary" onClick={changeUser}>
+                  Change User
+                </button>
+              </div>
+              <p className="toggle" onClick={() => changeUser()}>
+                Go Home
+              </p>
+            </>
           )}
         </div>
       )}
